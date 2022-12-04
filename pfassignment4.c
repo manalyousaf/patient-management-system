@@ -1,180 +1,182 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
-#include <ctype.h>
-struct patient //structure decleration
-	{
-		//structure members
-	    unsigned int ID;
-	    char NAME[50];
-	    char CNIC[15];
-	    char NUM[15];
-	    char disease[100];
-	    char isAdmitted;
-	} data;
-void choice();
-void addPatient();
-void deletePatient();
-int main()
+void updatePatient()
 {
-   
-    choice();//call a function
-    return 0;
+    struct patient data = { 0 };//create a structure variable
+    int count=0;
+    FILE* fp = NULL;
+    char NAME[50] = { 0 };
+    char CNIC[15] = { 0 };
+    char NUM[15] = { 0 };
+    char disease[100] = { 0 };
+        int id;
+        fopen_s(&fp, "patientsystem.bin", "rb+");//open a file for reading and writing in binary mode
+        if (fp == NULL)
+        {
+            printf("File is not opened\n");
+            
+        }
+        else {
+            printf("\nEnter ID of patient to update ");
+            scanf("%u", &id);
+            while (fread(&data, sizeof(data), 1, fp))//read data from file until null value
+            {
+                if (id == data.ID)
+                {
+                     count=1;
+                    int q;
+                    fflush(stdin);
+                    printf("\nWhat do you want to update ?");
+                   do{
+                    printf("\nEnter your option");
+                    printf("\n1.Name\n2.CNIC\n3.Number\n4.Disease\n5.Done");
+                    printf("\nOption= ");
+                    fflush(stdin);
+                    scanf("%d", &q);//option
+                     if(q==2)
+                    	{
+						
+                        printf("\nEnter new CNIC: ");
+                        fflush(stdin);
+                        getchar();
+                        gets(CNIC);
+                        strncpy(data.CNIC, CNIC, sizeof(CNIC));//copy enter cnic into data CNIC
+            
+                    }
+                      else if(q==1)
+                    	{
+						
+                        printf("\nEnter new NAME: ");
+						fflush(stdin);
+						getchar();  
+                        gets(NAME);
+                        strncpy(data.NAME, NAME, sizeof(NAME));
+        }
+                    else if(q==3)
+                    	{
+                        printf("\nEnter new number: ");
+                        fflush(stdin);
+                        getchar();
+                        gets(NUM);
+                        strncpy(data.NUM, NUM, sizeof(NUM));
+                    
+                    }
 
-}
-void choice()
-{
-    int choice;
-    printf("\n\t\t\tMENU\t\t\t");
-    printf("\n1. Add Patient");
-    printf("\n2. Search Patient");
-    printf("\n3. Display All Patient");
-    printf("\n4. Delete Patient");
-    printf("\n5. Update Patient");
-    printf("\n6. EXit");
-    printf(" \nEnter your Choice");
-    scanf_s("%d", &choice);
-    switch (choice)
-    {
-    case 1:
-    {
-        printf("\nAdding a Patient\n");
-        addPatient();
-        break;
-    }
-    case 2:
-    {
-        printf("\nSearching a Patient\n");
-        searchPatient();
-        
-        break;
-    }
-    case 3:
-    {
-        printf("\nDisplaying All Patient\n");
-        display();
+                    else if(q==4) 
+                    	{
+						
+                        printf("\nEnter disease: ");
+                        fflush(stdin);
+                        gets(disease);
+                        strncpy(data.disease, CNIC, sizeof(disease));
+                    }
+                    else if(q==5){
+                    	printf("Done");
+                    	break;
+					}
+                    else
+                    	{
+					
+                        printf("\nyou have entered wrong choice: \n ENTER AGAIN ");
+                        scanf("%d",&q);
+                        
+                    }
+                    fwrite(&data, sizeof(data), 1, fp);//write updated data in file
+                } while(q<=5&&q>=1);
+                  printf("\nYour information has been updated successfully");
+                
+            }
+           
+            }
+            fclose(fp);
+            fflush(stdin);
+            getchar();
+             if (count==0)
+            {
+            	printf("NO Record found");
+			}
+
+
+        }
        
-        break;
-    }
-    case 4:
-    {
-        printf("\nDeleting a Patient\n");
-        deletePatient();
-       
-        break;
-    }
-    case 5:
-    {
-        printf("\nUpdating a Patient\n");
-        updatePatient();
-        
-        break;
-    }
-    case 6:
-    {
-        printf("\nExiting");
-          exit(EXIT_FAILURE);
-    }
-    default:
-    {
-        printf("\nInvalid Choice");
-        
-    }
-    }
+        choice();
 }
-
-
-
-void addPatient()
+void searchPatient()
 {
+    int found = 0;
+    int id = 0;
     struct patient data = { 0 };
     FILE* fp = NULL;
-    int validation = 0;
-    fopen_s(&fp, "patientsystem.bin", "ab+");//open and create a file
+    fopen_s(&fp, "patientsystem.bin", "rb");//open file in read mode
+    if (fp == NULL)
+    {
+        printf("\nFile is not opened\n");
+    }
+    else{
+        printf("\nEnter patient  ID NO to search:");
+        fflush(stdin);
+        scanf("%u", &id);
+        while (fread(&data, sizeof(data), 1, fp))//read data from file
+        {
+            if (data.ID == id)//if data id match then display on screen
+            {
+                found = 1;
+            printf("\nPatient id = %u\n", data.ID);
+            printf("\nPatient name = %s\n", data.NAME);
+            printf("\nPatient CNIC = %s\n", data.CNIC);
+            printf("\nPatient number = %s\n", data.NUM);
+            printf("\nPatient Disease = %s\n", data.disease);
+            printf("\nPatient status = %s\n", "patient is admitted");
+            
+            }
+        }
+       
+        if(found==0)//data id not match
+        {
+            printf("\nNo Record  Record");
+        }
+        fclose(fp);
+        fflush(stdin);
+        getchar();
+    }
+   
+    choice();
+
+
+}
+void display()
+{
+    int found = 0;
+    struct patient data = { 0 };
+    FILE* fp = NULL;
+    fopen_s(&fp, "patientsystem.bin", "rb");//open a file in read binary mode
     if (fp == NULL)
     {
         printf("File is not opened\n");
-       
+        
     }
     else{
-        printf("\nEnter your Details below:");
-        printf("\nPatient ID  = ");
-        fflush(stdin);
-        scanf("%u", &data.ID);
-         printf("\nPatient  Name  = ");
-            fflush(stdin);
-            getchar();
-            gets(data.NAME);
-            printf("\nPatient CNIC  = ");
-            fflush(stdin);
-            getchar();
-            gets(data.CNIC);
-            printf("\nPatient number  = ");
-            fflush(stdin);
-            getchar();
-            gets(data.NUM);
-             printf("\nPatient Disease  = ");
-            fflush(stdin);
-            gets(data.disease);
-        fwrite(&data, sizeof(data), 1, fp);//write data on file
+        while (fread(&data, sizeof(data), 1, fp))//read data from file 
+        {
+        	//display all records from file
+            printf("\nPatient id = %u\n", data.ID);
+            printf("\nPatient name = %s\n", data.NAME);
+            printf("\nPatient CNIC = %s\n", data.CNIC);
+            printf("\nPatient number = %s\n", data.NUM);
+            printf("\nPatient Disease = %s\n", data.disease);
+            printf("\nPatient status = %s\n", "patient is admitted");
+            found = 1;
+
+        }
         fclose(fp);
+        if (!found)
+        {
+            printf("\nNo Record found");
+        }
+        fflush(stdin);
+        getchar();
     }
     
     choice();
 }
-void deletePatient()
-{
-    int found = 0;
-    int Delete = 0;
-    struct patient data = { 0 };
-    FILE* fp = NULL;
-    FILE* temp = NULL;
-        fopen_s(&fp, "patientsystem.bin", "rb");//open binary file in read mode
-    if (fp == NULL)
-    {
-        printf("File is not opened\n");
-       
-    }
-    else{
-        fopen_s(&temp, "temp.bin", "wb");//open binary file in write mode
-        if (temp == NULL)
-        {
-            fclose(fp);
-            printf("File is not opened\n");
-           
-            
-        }
-        else{
-            printf("\nEnter patient ID NO. for delete:");
-            scanf("%d", &Delete);
-            while (fread(&data, sizeof(data), 1, fp))//loop continue until return null value
-            {
-                if (data.ID != Delete)
-                {
-                    fwrite(&data, sizeof(data), 1, temp);//write in file if data id not match
-                }
-                else
-                {
-                    found = 1;
-                }
-            }
-            
-            fclose(fp);
-            fclose(temp);
-            remove("patientsystem.bin");//delete file
-            rename("temp.bin", "patientsystem.bin");//rename file
-           if(found==1) {
-		    printf("\nRecord deleted successfully.....");
-			}
-			else
-			{
-			
-			  printf("\nRecord not found");
-		}
-        }
-       
-    }
-   
-    choice();
-}
+
+
+
